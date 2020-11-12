@@ -2,9 +2,8 @@ package qos
 
 import (
 	"context"
-	"time"
-
 	"google.golang.org/grpc"
+	"time"
 )
 
 type Qos struct {
@@ -12,15 +11,15 @@ type Qos struct {
 	TimeStemp time.Time
 }
 
-func Qos() *Qos {
+func NewQos() *Qos {
 	return &Qos{0, time.Now()}
 }
 
 func UnaryServerInterceptor(qos *Qos) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if qos != nil {
-			if time.Until(qos.TimeStemp) > time.Second {
-				qos = Qos()
+			if time.Since(qos.TimeStemp) > time.Second {
+				qos = NewQos()
 			}
 			qos.Times++
 		}
